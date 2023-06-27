@@ -1,0 +1,278 @@
+openapi: 3.0.1
+info:
+  title: Report Service
+  description: |-
+    An API contract for a CRUD service for storing and retrieving environmental report data.
+    
+    View at https://editor.swagger.io/
+  version: 1.0.0
+tags:
+- name: report
+  description: CRUD operations for report objects
+paths:
+  /signup:
+    post:
+      tags:
+      - user
+      summary: Signup new user
+      description: Signup new user.
+      operationId: signupUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSignup'
+        required: true
+      responses:
+        201:
+          $ref: '#/components/responses/CreatedUser'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        409:
+          $ref: '#/components/responses/Duplicate'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        5XX:
+          $ref: '#/components/responses/InternalError'
+  /login:
+    post:
+      tags:
+      - user
+      summary: user login
+      description: login for user.
+      operationId: loginUser
+      security:
+      - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+        required: true
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        201:
+          $ref: '#/components/responses/Created'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        5XX:
+          $ref: '#/components/responses/InternalError'
+  /report:
+    post:
+      tags:
+      - report
+      summary: Submit a new report
+      description: This can only be done by the logged in user.
+      operationId: createReport
+      security:
+      - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Report'
+        required: true
+      responses:
+        201:
+          $ref: '#/components/responses/Created'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        5XX:
+          $ref: '#/components/responses/InternalError'
+
+  /report/{uuid}:
+    get:
+      tags:
+      - report
+      summary: Gets the specified report
+      operationId: getReportByUuid
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: uuid
+        in: path
+        description: 'The uuid of the report'
+        required: true
+        schema:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        200:
+          $ref: '#/components/responses/Created'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        5XX:
+          $ref: '#/components/responses/InternalError'
+  /report/user:
+    get:
+      tags:
+      - report
+      summary: Gets all reports for logged in user
+      operationId: getReportByUser
+      security:
+      - BearerAuth: []
+      responses:
+        200:
+          $ref: '#/components/responses/Retrieved'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        5XX:
+          $ref: '#/components/responses/InternalError'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Report:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "ACME Environmental Report 2021"
+        description:
+          type: string
+          example: "Environmental report for ACME covering the period 2021"
+        created:
+          type: string
+          format: date-time
+          example: "2017-07-21T17:32:28Z"
+        updated:
+          type: string
+          format: date-time
+          example: "2017-07-21T17:32:28Z"
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              metricId:
+                type: string
+                example: "e1.2.3"
+              value:
+                type: string
+                example: "1234.567"
+    UserSignup:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "ACME Corp"
+        email:
+          type: string
+          example: "Environmental@space.com"
+        password:
+          type: string
+          example: "test123"
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "Environmental@space.com"
+        password:
+          type: string
+          example: "test123"
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+  responses:
+    Success:
+      description: 'The request succeeded'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreatedUser:
+      description: 'User created successfully'
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+                example: "User created successfully"
+    Created:
+      description: 'The resource was created or updated'
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              uuid:
+                type: string
+                example: "123e4567-e89b-12d3-a456-426614174000"
+              report:
+                $ref: '#/components/schemas/Report'
+    Retrieved:
+      description: 'The resource was created or updated'
+      content:
+        application/json:
+          schema:
+            type: array
+            items: 
+              $ref: '#/components/schemas/Report'
+    BadRequest:
+      description: 'The server cannot or will not process the request'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: 'The client must authenticate itself to get the requested response'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: 'The client does not have access rights to the content'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: 'The specified resource was not found'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: 'The request conflicts with the current state of the server'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: 'The server has encountered a situation it does not know how to handle'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Duplicate:
+      description: 'User with that email already exists'
+      content:
+         application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

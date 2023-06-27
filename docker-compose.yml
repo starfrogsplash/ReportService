@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  dbDev:
+    image: postgres
+    container_name: dbDev
+    environment:
+      - POSTGRES_PASSWORD=verysecretpassword
+      - POSTGRES_USER=Report
+      - POSTGRES_DB=Report
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/pgdata
+    networks:
+      - report
+  dbTest:
+    image: postgres
+    container_name: dbTest
+    hostname: localhost
+    environment:
+      POSTGRES_USER: testUser
+      POSTGRES_PASSWORD: testPassword
+      POSTGRES_DB: reportTest
+    ports:
+      - "5400:5432"
+    networks:
+      - report
+volumes:
+  pgdata:
+networks:
+  report:
