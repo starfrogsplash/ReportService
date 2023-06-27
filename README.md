@@ -3,8 +3,7 @@
 https://github.com/starfrogsplash/ReportService/assets/22579826/301094bb-6a2e-4597-90e1-b59ea6f5a13d
 
 
-
-A (view and create) service for storing and retrieving environmental report data with tests. 
+A Fullstack app - (view and create) service for storing and retrieving environmental report data with tests. 
 built using:
 TypeScript, jest, knex, postgres, Docker-compose, React
 
